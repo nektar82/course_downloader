@@ -1,0 +1,600 @@
+library_root: "D:/StudyLibrary"
+
+defaults:
+  timestamp_minutes: 5
+  paragraph_chars: 700
+  languages: [en, en-US, en-GB]
+  transcribe_if_no_captions: false
+  whisper_model: small
+  keep_fallback_audio: false
+  request_delay_seconds: 0.15
+  timeout: 45
+
+courses:
+  # -------------------- AI / ML --------------------
+  - id: ai-math-refresh
+    name: "Mathematics for Machine Learning - targeted refresh"
+    path: "AI/00-Foundations/Mathematics-for-Machine-Learning"
+    status: "required-reference"
+    why: "Use selectively to refresh linear algebra, calculus, probability and optimization rather than repeating an undergraduate mathematics sequence."
+    sources:
+      - type: course_page
+        label: "Mathematics for Machine Learning"
+        url: "https://mml-book.github.io/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: false
+        discover_github: false
+
+  - id: stanford-cs221-2026
+    name: "Stanford CS221 - Artificial Intelligence: Principles and Techniques (Spring 2026)"
+    path: "AI/01-Core/Stanford-CS221-2026"
+    status: "required-refresh"
+    why: "Refresh classical AI foundations: search, MDPs, CSPs, graphical models and logic. Move quickly through material you still remember."
+    sources:
+      - type: course_page
+        url: "https://stanford-cs221.github.io/spring2026/"
+        crawl_depth: 2
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: stanford-cs229
+    name: "Stanford CS229 - Machine Learning foundations"
+    path: "AI/02-Machine-Learning/Stanford-CS229"
+    status: "required"
+    why: "Mathematical ML backbone. Current Stanford course materials are partly Stanford-only, so this combines public foundational notes with the public Stanford Online lecture set."
+    sources:
+      - type: course_page
+        url: "https://cs229.stanford.edu/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: false
+        discover_github: false
+      - type: course_page
+        label: "Public legacy CS229 notes"
+        url: "https://cs229.stanford.edu/materials.html-full"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: false
+      - type: reference
+        label: "Stanford Online CS229 public lectures (2018 fundamentals)"
+        url: "https://www.youtube.com/watch?v=jGwO_UgTS7I"
+
+  - id: mit-6s191-2026
+    name: "MIT 6.S191 - Introduction to Deep Learning (2026)"
+    path: "AI/03-Deep-Learning/MIT-6.S191-2026"
+    status: "required"
+    why: "Compact current deep-learning refresher with public lecture videos and labs, including modern LLM and large-scale training material."
+    sources:
+      - type: course_page
+        url: "https://introtodeeplearning.com/"
+        crawl_depth: 2
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+      - type: course_page
+        label: "MIT OpenCourseWare mirror"
+        url: "https://ocw.mit.edu/courses/6-s191-introduction-to-deep-learning-january-iap-2020/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+
+  - id: stanford-cs224n-2026
+    name: "Stanford CS224N - NLP with Deep Learning (Winter 2026 materials + public 2024 videos)"
+    path: "AI/04-NLP-LLMs/Stanford-CS224N"
+    status: "required"
+    why: "Core NLP/LLM theory, assignments, notes and papers. Use current 2026 written materials with the most recent fully public lecture set when current recordings are not public."
+    sources:
+      - type: course_page
+        url: "https://web.stanford.edu/class/cs224n/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+      - type: youtube_playlist
+        label: "Spring 2024 public lecture playlist"
+        url: "https://www.youtube.com/playlist?list=PLoROMvodv4rOaMFbaqxPDoLWjDaRAdP9D"
+
+  - id: stanford-cme295-2025
+    name: "Stanford CME295 - Transformers & Large Language Models (Autumn 2025)"
+    path: "AI/04-NLP-LLMs/Stanford-CME295-2025"
+    status: "required-bridge"
+    why: "Concise bridge from transformer mechanics through training, reasoning, agents and evaluation before CS336."
+    sources:
+      - type: course_page
+        url: "https://cme295.stanford.edu/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: false
+
+  - id: stanford-cs336-2026
+    name: "Stanford CS336 - Language Modeling from Scratch (Spring 2026)"
+    path: "AI/05-LLM-Engineering/Stanford-CS336-2026"
+    status: "required-highest-priority"
+    why: "Best fit for a senior systems engineer moving into LLM engineering: tokenizer/model/optimizer implementation, GPU kernels, distributed training, data, scaling, evaluation, alignment and reasoning."
+    sources:
+      - type: course_page
+        url: "https://cs336.stanford.edu/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+      - type: youtube_playlist
+        url: "https://www.youtube.com/playlist?list=PLoROMvodv4rMqXOcazWaTUHhq-yembLCV"
+
+  - id: huggingface-llm-course
+    name: "Hugging Face LLM Course"
+    path: "AI/06-Practical-LLM/Hugging-Face-LLM-Course"
+    status: "required-practical"
+    why: "Hands-on Transformers, Datasets, Tokenizers, fine-tuning, data curation, reasoning models and deployment ecosystem."
+    sources:
+      - type: course_page
+        url: "https://huggingface.co/learn/llm-course/en/chapter1/1"
+        crawl_depth: 2
+        allowed_domains: [huggingface.co]
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: stanford-cs231n-2026
+    name: "Stanford CS231n - Deep Learning for Computer Vision (2026 materials + 2025 videos)"
+    path: "AI/07-Computer-Vision/Stanford-CS231N"
+    status: "required-breadth"
+    why: "Keeps computer vision and multimodal representation learning in the core rather than making your AI retraining LLM-only."
+    sources:
+      - type: course_page
+        url: "https://cs231n.stanford.edu/2026/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+      - type: youtube_playlist
+        label: "Spring 2025 public lectures"
+        url: "https://www.youtube.com/playlist?list=PLoROMvodv4rOmsNzYBMe0gJY2XS8AQg16"
+
+  - id: stanford-cme296-2026
+    name: "Stanford CME296 - Diffusion & Large Vision Models (Spring 2026)"
+    path: "AI/08-Generative-Vision/Stanford-CME296-2026"
+    status: "required-modern-generative"
+    why: "Diffusion, score/flow matching, latent diffusion, DiTs, multimodal training, tuning and evaluation."
+    sources:
+      - type: course_page
+        url: "https://cme296.stanford.edu/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: false
+
+  - id: stanford-cs234-2026
+    name: "Stanford CS234 - Reinforcement Learning (Winter 2026)"
+    path: "AI/09-Reinforcement-Learning/Stanford-CS234-2026"
+    status: "required-foundations"
+    why: "RL fundamentals plus deep RL and RLHF basics; important for alignment/reasoning and agents even if you do not specialize in robotics."
+    sources:
+      - type: course_page
+        url: "https://web.stanford.edu/class/cs234/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: stanford-cs224r-2026
+    name: "Stanford CS224R - Deep Reinforcement Learning (Spring 2026)"
+    path: "AI/09-Reinforcement-Learning/Stanford-CS224R-2026"
+    status: "advanced-elective"
+    why: "Take after CS234 if you want deeper RL, imitation/offline RL, robotics or agent learning research depth."
+    sources:
+      - type: course_page
+        url: "https://cs224r.stanford.edu/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: made-with-ml
+    name: "Made With ML - MLOps"
+    path: "AI/10-ML-Systems/Made-With-ML-MLOps"
+    status: "required-production"
+    why: "Production ML design, data, training, testing, reproducibility, serving, CI/CD and monitoring."
+    sources:
+      - type: course_page
+        url: "https://madewithml.com/courses/mlops/"
+        crawl_depth: 3
+        allowed_domains: [madewithml.com]
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: stanford-cs329z-2026
+    name: "Stanford CS329Z - Engineering AI Agents (Fall 2026)"
+    path: "AI/11-Agentic-Systems/Stanford-CS329Z-2026"
+    status: "required-when-released"
+    why: "Current agent engineering: RAG, tools, agent loops, compound systems, data, evaluation, optimization and cost/latency tradeoffs. Re-run the sync command as Fall 2026 material is released."
+    sources:
+      - type: course_page
+        url: "https://cs329z.stanford.edu/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: stanford-cs25-v6
+    name: "Stanford CS25 - Transformers United V6"
+    path: "AI/12-Research-Awareness/Stanford-CS25-V6"
+    status: "ongoing-seminar"
+    why: "Use as a research-awareness stream after the core, not as a substitute for fundamentals."
+    sources:
+      - type: course_page
+        url: "https://web.stanford.edu/class/cs25/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+
+  - id: stanford-cs329x
+    name: "Stanford CS329X - Human-Centered LLMs/NLP"
+    path: "AI/13-Human-Centered/Stanford-CS329X"
+    status: "high-value-specialization"
+    why: "Especially relevant to accessibility work: human-centered design, personalization, fairness, privacy, risk and accessibility around LLM systems."
+    sources:
+      - type: course_page
+        url: "https://web.stanford.edu/class/cs329x/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  # -------------------- Cybersecurity --------------------
+  - id: stanford-cs144
+    name: "Stanford CS144 - Computer Networking refresher"
+    path: "Cybersecurity/00-Prerequisite-Refresh/Stanford-CS144"
+    status: "targeted-refresh"
+    why: "Refresh only the networking details that are no longer automatic before deeper network/security work."
+    sources:
+      - type: course_page
+        url: "https://cs144.github.io/"
+        crawl_depth: 2
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: mit-6566-2026
+    name: "MIT 6.566 - Computer Systems Security (Spring 2026)"
+    path: "Cybersecurity/01-Systems-Security/MIT-6.566-2026"
+    status: "required-highest-priority"
+    why: "Modern systems security with isolation, privilege separation, browser security, symbolic execution, TLS/WebAuthn, supply chain, mobile and AI-agent security, plus labs."
+    sources:
+      - type: course_page
+        url: "https://css.csail.mit.edu/6.5660/2026/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+      - type: youtube_playlist
+        url: "https://www.youtube.com/playlist?list=PLA6Ht2dJt3SId7vE9P5mppWdj65_l6hl7"
+
+  - id: stanford-cs155-2026
+    name: "Stanford CS155 - Computer and Network Security (Spring 2026)"
+    path: "Cybersecurity/01-Systems-Security/Stanford-CS155-2026"
+    status: "required-reading-and-labs"
+    why: "Complements MIT 6.566 with Stanford's attack/defense framing and research-paper reading list. Current recordings are Canvas-only, but public slides/readings remain valuable."
+    sources:
+      - type: course_page
+        url: "https://cs155.stanford.edu/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: false
+        discover_github: true
+
+  - id: stanford-cs253
+    name: "Stanford CS253 - Web Security"
+    path: "Cybersecurity/02-Web-AppSec/Stanford-CS253"
+    status: "required"
+    why: "Directly leverages your browser background: same-origin policy, cookies, XSS/CSRF, CSP, Trusted Types, HTTPS, WebAuthn and browser architecture."
+    sources:
+      - type: course_page
+        url: "https://web.stanford.edu/class/cs253/"
+        crawl_depth: 2
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: portswigger-web-security-academy
+    name: "PortSwigger Web Security Academy"
+    path: "Cybersecurity/02-Web-AppSec/PortSwigger-Web-Security-Academy"
+    status: "required-hands-on"
+    why: "Work the labs, especially request smuggling, deserialization, auth/OAuth/JWT, prototype pollution, APIs, race conditions and Web LLM attacks. Interactive labs should be used on the official site rather than scraped."
+    sources:
+      - type: reference
+        label: "Academy"
+        url: "https://portswigger.net/web-security"
+      - type: reference
+        label: "All topics"
+        url: "https://portswigger.net/web-security/all-topics"
+      - type: reference
+        label: "All labs"
+        url: "https://portswigger.net/web-security/all-labs"
+
+  - id: stanford-cs255-2026
+    name: "Stanford CS255 - Introduction to Cryptography (Winter 2026)"
+    path: "Cybersecurity/03-Cryptography/Stanford-CS255-2026"
+    status: "required"
+    why: "Applied crypto fundamentals through modern authenticated encryption, TLS, post-quantum crypto and zero knowledge."
+    sources:
+      - type: course_page
+        url: "https://cs255.stanford.edu/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: pwn-college
+    name: "pwn.college - Core exploitation curriculum"
+    path: "Cybersecurity/04-Exploitation/pwn.college"
+    status: "required-hands-on"
+    why: "Hands-on Linux, assembly, shellcoding, reverse engineering, debugging and binary exploitation."
+    sources:
+      - type: course_page
+        url: "https://pwn.college/dojos"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: ost2-reverse-engineering
+    name: "OpenSecurityTraining2 - Architecture and Reverse Engineering"
+    path: "Cybersecurity/05-Reverse-Engineering/OpenSecurityTraining2"
+    status: "required-for-malware-and-low-level-depth"
+    why: "x86-64 architecture, reverse engineering, C++ binaries and symbolic analysis; ideal bridge into serious malware analysis."
+    sources:
+      - type: course_page
+        url: "https://p.ost2.fyi/courses"
+        crawl_depth: 2
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: htb-pentest
+    name: "Hack The Box Academy - Penetration Tester Job Role Path"
+    path: "Cybersecurity/06-Penetration-Testing/HTB-Penetration-Tester"
+    status: "required-if-pentest-track"
+    why: "Structured enterprise pentest methodology and practical labs. Course content is account-gated; keep the reference and do labs on HTB."
+    sources:
+      - type: reference
+        url: "https://academy.hackthebox.com/path/preview/penetration-tester"
+
+  - id: offsec-pen200
+    name: "OffSec PEN-200 / OSCP"
+    path: "Cybersecurity/06-Penetration-Testing/OffSec-PEN-200"
+    status: "credential-option-after-core"
+    why: "Use primarily for the practical OSCP signal after you already possess the underlying skills; do not use it as your first exposure to security."
+    sources:
+      - type: reference
+        url: "https://www.offsec.com/courses/pen-200/"
+      - type: direct
+        label: "Public syllabus"
+        url: "https://www.offsec.com/documentation/penetration-testing-with-kali.pdf"
+
+  - id: htb-soc-analyst
+    name: "Hack The Box Academy - SOC Analyst / Defensive Security"
+    path: "Cybersecurity/07-Detection-IR/HTB-SOC-Analyst"
+    status: "required-breadth"
+    why: "Enough blue-team depth to understand telemetry, detection, incident handling and attacker/defender feedback loops even if product security is your target."
+    sources:
+      - type: reference
+        url: "https://academy.hackthebox.com/catalogue/paths"
+
+  - id: giac-grem
+    name: "GIAC GREM / Malware Reverse Engineering track"
+    path: "Cybersecurity/08-Malware/GIAC-GREM"
+    status: "specialization-credential"
+    why: "Relevant if you decide to make malware analysis/reverse engineering a formal specialization; expensive, so take only after OST2/pwn.college depth."
+    sources:
+      - type: reference
+        url: "https://www.giac.org/certifications/reverse-engineering-malware-grem"
+
+  - id: htb-ai-red-team
+    name: "Hack The Box - AI Red Teamer Path / COAE"
+    path: "Cybersecurity/09-AI-Security/HTB-AI-Red-Teamer"
+    status: "required-intersection-specialization"
+    why: "The strongest direct bridge between your AI and security tracks: prompt injection, model privacy, adversarial ML, poisoning/evasion, application/system attacks and defense."
+    sources:
+      - type: reference
+        url: "https://academy.hackthebox.com/path/preview/ai-red-teamer"
+      - type: reference
+        label: "COAE certification"
+        url: "https://academy.hackthebox.com/news/the-new-htb-certified-offensive-ai-expert-htb-coae-is-officially-here"
+
+  - id: owasp-genai-2026
+    name: "OWASP GenAI / LLM Security 2026"
+    path: "Cybersecurity/09-AI-Security/OWASP-GenAI-2026"
+    status: "required-reference"
+    why: "Current application-security taxonomy and mitigations for LLM, GenAI and agentic systems."
+    sources:
+      - type: course_page
+        url: "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+
+  - id: secure-sdlc-supply-chain
+    name: "Secure SDLC and Software Supply Chain reference set"
+    path: "Cybersecurity/10-Security-Engineering/Secure-SDLC-Supply-Chain"
+    status: "required-reference"
+    why: "Product-security work requires secure development lifecycle, supply-chain and assurance frameworks in addition to offensive skills."
+    sources:
+      - type: course_page
+        label: "NIST SSDF"
+        url: "https://csrc.nist.gov/projects/ssdf"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: false
+      - type: course_page
+        label: "SLSA"
+        url: "https://slsa.dev/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: false
+        discover_github: true
+      - type: course_page
+        label: "OWASP ASVS"
+        url: "https://owasp.org/www-project-application-security-verification-standard/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: false
+        discover_github: true
+
+  # -------------------- IAAP Accessibility Certifications --------------------
+  - id: iaap-certification-common
+    name: "IAAP Professional Certification - common official material"
+    path: "Accessibility/IAAP/00-Common-Certification-Material"
+    status: "current-official"
+    tags: [iaap, accessibility, certification]
+    why: "Common IAAP certification guidance, handbook, exam logistics, FAQs and public preparation resources shared across CPACC, WAS and ADS. Login/member-only Education Portal content is recorded as a reference, not bypassed."
+    sources:
+      - type: course_page
+        label: "IAAP Professional Certification Applications"
+        url: "https://www.accessibilityassociation.org/professional-certification-applications"
+        crawl_depth: 2
+        allowed_domains: [www.accessibilityassociation.org, accessibilityassociation.org]
+        page_include_regex: "(cpacc|was|ads|cpwa|exam|certification|accommod|handbook|prepare|education|knowledge-tests|mini-courses|discount|session)"
+        document_link_regex: "(body of knowledge|\\bbok\\b|content outline|sample|handbook|worksheet|pre-application|pdf|word|docx|epub|audio|mp3|syllabus)"
+        download_documents: true
+        download_external_documents: false
+        discover_youtube: true
+        discover_github: false
+      - type: course_page
+        label: "IAAP Exam FAQ"
+        url: "https://www.accessibilityassociation.org/exam-faq"
+        crawl_depth: 0
+        document_link_regex: "(handbook|content outline|body of knowledge|\\bbok\\b|pdf|word|docx|epub|audio|mp3)"
+        download_documents: true
+        discover_youtube: false
+        discover_github: false
+      - type: course_page
+        label: "IAAP Exam Session Dates"
+        url: "https://www.accessibilityassociation.org/exam-session-dates"
+        crawl_depth: 0
+        download_documents: true
+        discover_youtube: false
+        discover_github: false
+      - type: reference
+        label: "IAAP Education Portal / mini-courses (account access; not scraped)"
+        url: "https://www.accessibilityassociation.org/mini-courses"
+      - type: reference
+        label: "IAAP Knowledge-Based Tests (account/portal-dependent; not scraped)"
+        url: "https://www.accessibilityassociation.org/knowledge-tests"
+
+  - id: iaap-cpacc
+    name: "IAAP CPACC - Certified Professional in Accessibility Core Competencies"
+    path: "Accessibility/IAAP/01-CPACC"
+    status: "current-exam"
+    tags: [iaap, accessibility, certification, cpacc]
+    why: "Downloads IAAP's public CPACC exam page, Content Outline, Body of Knowledge formats, public sample questions and discoverable public audio/YouTube preparation material. Third-party or member-only preparation courses are referenced but not bypassed."
+    sources:
+      - type: course_page
+        label: "Official CPACC exam and preparation page"
+        url: "https://www.accessibilityassociation.org/cpacc"
+        crawl_depth: 1
+        allowed_domains: [www.accessibilityassociation.org, accessibilityassociation.org]
+        page_include_regex: "(cpacc|sample|exam|certification|prepare)"
+        document_link_regex: "(cpacc|body of knowledge|\\bbok\\b|content outline|sample|syllabus|pdf|word|docx|epub|audio|mp3)"
+        download_documents: true
+        download_external_documents: false
+        discover_youtube: true
+        discover_github: false
+      - type: course_page
+        label: "CPACC FAQ"
+        url: "https://www.accessibilityassociation.org/cpacc-faq"
+        crawl_depth: 0
+        document_link_regex: "(cpacc|body of knowledge|\\bbok\\b|content outline|sample|pdf|word|docx|epub|audio|mp3)"
+        download_documents: true
+        discover_youtube: true
+        discover_github: false
+      - type: reference
+        label: "IAAP Education Portal / Princeton CPACC Preparation Course (login/member conditions may apply)"
+        url: "https://www.accessibilityassociation.org/mini-courses"
+
+  - id: iaap-was
+    name: "IAAP WAS - Web Accessibility Specialist"
+    path: "Accessibility/IAAP/02-WAS"
+    status: "current-exam"
+    tags: [iaap, accessibility, certification, was]
+    why: "Downloads IAAP's public WAS exam page, current Content Outline, Body of Knowledge formats, application/preparation worksheets and other public official preparation resources."
+    sources:
+      - type: course_page
+        label: "Official WAS exam and preparation page"
+        url: "https://www.accessibilityassociation.org/was-exam"
+        crawl_depth: 1
+        allowed_domains: [www.accessibilityassociation.org, accessibilityassociation.org]
+        page_include_regex: "(was|web-accessibility|exam|certification|prepare)"
+        document_link_regex: "(was|body of knowledge|\\bbok\\b|content outline|sample|worksheet|pre-application|pdf|word|docx|epub|audio|mp3)"
+        download_documents: true
+        download_external_documents: false
+        discover_youtube: true
+        discover_github: false
+      - type: reference
+        label: "IAAP WAS-related mini-courses / Education Portal (login required; not scraped)"
+        url: "https://www.accessibilityassociation.org/mini-courses"
+
+  - id: iaap-ads
+    name: "IAAP ADS - Accessible Document Specialist"
+    path: "Accessibility/IAAP/03-ADS"
+    status: "current-exam"
+    tags: [iaap, accessibility, certification, ads]
+    why: "Downloads IAAP's public ADS exam page, Content Outline, Body of Knowledge and other discoverable public official preparation resources."
+    sources:
+      - type: course_page
+        label: "Official ADS exam and preparation page"
+        url: "https://www.accessibilityassociation.org/ads-exam"
+        crawl_depth: 1
+        allowed_domains: [www.accessibilityassociation.org, accessibilityassociation.org]
+        page_include_regex: "(ads|accessible-document|exam|certification|prepare)"
+        document_link_regex: "(ads|body of knowledge|\\bbok\\b|content outline|sample|worksheet|pdf|word|docx|epub|audio|mp3)"
+        download_documents: true
+        download_external_documents: false
+        discover_youtube: true
+        discover_github: false
+      - type: reference
+        label: "IAAP Education Portal / document-accessibility courses (login conditions may apply; not scraped)"
+        url: "https://www.accessibilityassociation.org/education-overview"
+
+  - id: iaap-cpwa
+    name: "IAAP CPWA - combined CPACC + WAS study index"
+    path: "Accessibility/IAAP/04-CPWA"
+    status: "credential-no-separate-exam"
+    tags: [iaap, accessibility, certification, cpwa]
+    why: "CPWA has no separate exam. IAAP awards it after a candidate passes both CPACC and WAS; this entry captures the official CPWA requirements and points back to those two exam bodies of knowledge."
+    sources:
+      - type: course_page
+        label: "Official CPWA page"
+        url: "https://www.accessibilityassociation.org/cpwa"
+        crawl_depth: 0
+        document_link_regex: "(cpacc|was|content outline|body of knowledge|\\bbok\\b|pdf|word|docx|epub)"
+        download_documents: true
+        discover_youtube: false
+        discover_github: false
+      - type: reference
+        label: "CPACC preparation material (run iaap-cpacc)"
+        url: "https://www.accessibilityassociation.org/cpacc"
+      - type: reference
+        label: "WAS preparation material (run iaap-was)"
+        url: "https://www.accessibilityassociation.org/was-exam"
+
+  - id: iaap-cpabe-legacy
+    name: "IAAP CPABE - legacy/sunset material"
+    path: "Accessibility/IAAP/99-CPABE-Legacy"
+    status: "sunset-2024-not-current-exam"
+    tags: [iaap, accessibility, certification, cpabe, legacy]
+    why: "CPABE was sunset in 2024 and is not a current IAAP exam. This entry preserves only IAAP's remaining public legacy page/material for reference."
+    sources:
+      - type: course_page
+        label: "Official legacy CPABE page"
+        url: "https://www.accessibilityassociation.org/cpabe"
+        crawl_depth: 0
+        document_link_regex: "(cpabe|handbook|pdf|word|docx|epub|standard|guideline)"
+        download_documents: true
+        discover_youtube: false
+        discover_github: false

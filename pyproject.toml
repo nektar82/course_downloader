@@ -1,0 +1,83 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "course-downloader"
+version = "1.0.0"
+description = "Download and organize public educational resources into a structured local study library."
+readme = "README.md"
+requires-python = ">=3.14"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Nektarios Paisios" }
+]
+
+dependencies = [
+    "beautifulsoup4>=4.13",
+    "httpx>=0.28",
+    "markitdown[all]>=0.1.1",
+    "pyyaml>=6.0.2",
+    "typer>=0.16",
+    "rich>=14.0",
+    "youtube-transcript-api>=1.1",
+    "yt-dlp>=2025.8"
+]
+
+[project.optional-dependencies]
+whisper = [
+    "faster-whisper>=1.1"
+]
+
+dev = [
+    "mypy>=1.17",
+    "pytest>=8.4",
+    "pytest-cov>=6.2",
+    "pytest-mock>=3.14",
+    "responses>=0.25",
+    "ruff>=0.12",
+    "types-PyYAML>=6.0"
+]
+
+[project.scripts]
+course-downloader = "course_downloader.cli:app"
+
+[tool.ruff]
+line-length = 80
+target-version = "py314"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "UP",
+    "SIM",
+]
+
+ignore = [
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--cov=course_downloader",
+    "--cov-report=term-missing",
+    # "--cov-fail-under=70",
+]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unused_ignores = true
+warn_return_any = true
