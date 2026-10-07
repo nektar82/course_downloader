@@ -21,19 +21,19 @@ class Doctor:
     def run(self) -> None:
         """Execute diagnostics."""
 
-        table = Table(title="Tool Diagnostics")
+        table = Table(
+            title="Tool Diagnostics",
+        )
 
         table.add_column("Tool")
-
         table.add_column("Required")
-
         table.add_column("Installed")
 
         for tool in check_tools():
             table.add_row(
                 tool.name,
-                ("Yes" if tool.required else "No"),
-                ("✅" if tool.installed else "❌"),
+                "Yes" if tool.required else "No",
+                "✓" if tool.installed else "✗",
             )
 
         self.console.print(table)

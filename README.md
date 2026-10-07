@@ -48,7 +48,7 @@ Supported source types:
 
 Required:
 
-- Python 3.13+
+- Python 3.14+
 - Git
 - yt-dlp
 

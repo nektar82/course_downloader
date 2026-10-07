@@ -82,8 +82,14 @@ def sync(
     """Synchronize all courses."""
 
     application = CourseDownloaderApplication(manifest)
+    report = application.sync_all()
 
-    application.sync_all()
+    if report.failed:
+        console.print(
+            f"[red]Synchronization failed: {report.failed} source(s)"
+            f" failed.[/red]"
+        )
+        raise typer.Exit(code=1)
 
     console.print("[green]Synchronization complete.[/green]")
 
@@ -96,8 +102,14 @@ def sync_course(
     """Synchronize a single course."""
 
     application = CourseDownloaderApplication(manifest)
+    report = application.sync_course(course_id)
 
-    application.sync_course(course_id)
+    if report.failed:
+        console.print(
+            f"[red]Synchronization failed: {report.failed} source(s)"
+            f" failed.[/red]"
+        )
+        raise typer.Exit(code=1)
 
     console.print("[green]Synchronization complete.[/green]")
 

@@ -27,22 +27,129 @@ class TranscriptFetcher:
     ) -> list[dict[str, Any]]:
         """Retrieve transcript segments."""
 
+        transcript = self._choose_transcript(
+            video_id,
+            languages,
+        )
+
+        fetched = transcript.fetch(
+            preserve_formatting=True,
+        )
+
+        return self._segments_to_dicts(
+            fetched,
+        )
+
+    def _choose_transcript(
+        self,
+        video_id: str,
+        languages: list[str],
+    ) -> Any:
+        """Select best available transcript."""
+
         if not HAS_YOUTUBE_TRANSCRIPTS:
             raise RuntimeError("youtube-transcript-api is not installed.")
 
         api = YouTubeTranscriptApi()
 
-        transcript_list = api.list(video_id)
+        transcript_list = api.list(
+            video_id,
+        )
 
-        transcript = transcript_list.find_transcript(languages)
+        for method_name in (
+            "find_manually_created_transcript",
+            "find_generated_transcript",
+            "find_transcript",
+        ):
+            method = getattr(
+                transcript_list,
+                method_name,
+                None,
+            )
 
-        fetched = transcript.fetch()
+            if method is None:
+                continue
 
-        return [
-            {
-                "text": item.text,
-                "start": float(item.start),
-                "duration": float(item.duration),
-            }
-            for item in fetched
-        ]
+            try:
+                return method(
+                    languages,
+                )
+            except Exception:
+                pass
+
+        for transcript in transcript_list:
+            try:
+                if getattr(
+                    transcript,
+                    "is_translatable",
+                    False,
+                ):
+                    return transcript.translate(
+                        "en",
+                    )
+            except Exception:
+                pass
+
+            return transcript
+
+        raise RuntimeError("No transcript is available.")
+
+    @staticmethod
+    def _segments_to_dicts(
+        fetched: Any,
+    ) -> list[dict[str, Any]]:
+        segments: list[dict[str, Any]] = []
+
+        for segment in fetched:
+            if isinstance(
+                segment,
+                dict,
+            ):
+                segments.append(
+                    {
+                        "text": segment.get(
+                            "text",
+                            "",
+                        ),
+                        "start": float(
+                            segment.get(
+                                "start",
+                                0.0,
+                            )
+                        ),
+                        "duration": float(
+                            segment.get(
+                                "duration",
+                                0.0,
+                            )
+                        ),
+                    }
+                )
+
+                continue
+
+            segments.append(
+                {
+                    "text": getattr(
+                        segment,
+                        "text",
+                        "",
+                    ),
+                    "start": float(
+                        getattr(
+                            segment,
+                            "start",
+                            0.0,
+                        )
+                    ),
+                    "duration": float(
+                        getattr(
+                            segment,
+                            "duration",
+                            0.0,
+                        )
+                    ),
+                }
+            )
+
+        return segments

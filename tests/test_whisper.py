@@ -6,7 +6,9 @@ from course_downloader.whisper import (
 
 
 def test_creation() -> None:
-
-    transcriber = WhisperTranscriber()
+    transcriber = WhisperTranscriber(
+        model_name="small",
+        keep_audio=False,
+    )
 
     assert transcriber is not None

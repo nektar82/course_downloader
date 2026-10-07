@@ -26,15 +26,22 @@ class YouTubeClient:
             check=True,
             text=True,
             capture_output=True,
+            timeout=120,
         )
 
         data = json.loads(result.stdout)
 
         title = data.get("title") or "YouTube"
 
-        entries = data.get("entries") or [data]
+        entries = data.get("entries")
+
+        if entries:
+            return (
+                title,
+                entries,
+            )
 
         return (
             title,
-            entries,
+            [data],
         )

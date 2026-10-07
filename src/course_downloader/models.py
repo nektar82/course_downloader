@@ -2,15 +2,26 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Literal
+
+SourceType = Literal[
+    "youtube",
+    "youtube_playlist",
+    "youtube_video",
+    "github",
+    "direct",
+    "course_page",
+    "reference",
+]
 
 
 @dataclass(slots=True, frozen=True)
 class Source:
     """Course source definition."""
 
-    type: str
+    type: SourceType | str
 
     url: str | None = None
 
@@ -19,6 +30,8 @@ class Source:
     crawl_depth: int = 1
 
     download_documents: bool = True
+
+    download_external_documents: bool = True
 
     discover_youtube: bool = True
 
@@ -33,6 +46,20 @@ class Source:
     page_include_regex: str | None = None
 
     document_link_regex: str | None = None
+
+
+@dataclass(slots=True)
+class SyncReport:
+    """Aggregated synchronization outcome."""
+
+    succeeded: int = 0
+    skipped: int = 0
+    failed: int = 0
+    warnings: list[str] = field(default_factory=list)
+
+    @property
+    def is_success(self) -> bool:
+        return self.failed == 0
 
 
 @dataclass(slots=True, frozen=True)

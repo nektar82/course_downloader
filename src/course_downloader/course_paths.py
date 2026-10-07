@@ -13,33 +13,42 @@ class CoursePaths:
         root: Path,
         course_path: str,
     ) -> None:
+        self.root = root.resolve()
+        requested = (self.root / Path(course_path)).resolve()
 
-        self.base = root / Path(course_path)
+        try:
+            requested.relative_to(self.root)
+        except ValueError as exc:
+            raise ValueError(
+                f"Course path escapes library root: {course_path}"
+            ) from exc
 
-        self.lectures = self.base / "lectures"
+        self.course_root = requested
 
-        self.raw_transcripts = self.base / "raw" / "transcripts"
+        self.lectures = self.course_root / "lectures"
 
-        self.fallback_audio = self.base / "raw" / "audio"
+        self.raw_transcripts = self.course_root / "raw" / "transcripts"
 
-        self.web = self.base / "source" / "web"
+        self.fallback_audio = self.course_root / "raw" / "audio"
 
-        self.files = self.base / "source" / "files"
+        self.web = self.course_root / "source" / "web"
 
-        self.repos = self.base / "source" / "repos"
+        self.files = self.course_root / "source" / "files"
 
-        self.markdown = self.base / "markdown"
+        self.repos = self.course_root / "source" / "repos"
 
-        self.metadata = self.base / "metadata"
+        self.markdown = self.course_root / "markdown"
 
-        self.logs = self.base / "logs"
+        self.metadata = self.course_root / "metadata"
+
+        self.logs = self.course_root / "logs"
 
     def create(
         self,
     ) -> None:
 
         for path in (
-            self.base,
+            self.course_root,
             self.lectures,
             self.raw_transcripts,
             self.fallback_audio,

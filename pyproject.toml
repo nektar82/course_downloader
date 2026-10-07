@@ -34,6 +34,7 @@ dev = [
     "mypy>=1.17",
     "pytest>=8.4",
     "pytest-cov>=6.2",
+    "pytest-httpx>=0.35",
     "pytest-mock>=3.14",
     "responses>=0.25",
     "ruff>=0.12",
@@ -46,6 +47,7 @@ course-downloader = "course_downloader.cli:app"
 [tool.ruff]
 line-length = 80
 target-version = "py314"
+exclude = ["src/old_course_downloader"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -66,6 +68,19 @@ select = [
 ignore = [
 ]
 
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unused_ignores = true
+warn_return_any = true
+exclude = "^src/old_course_downloader/"
+
+[[tool.mypy.overrides]]
+module = [
+    "faster_whisper",
+]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = [
@@ -73,11 +88,5 @@ addopts = [
     "--strict-markers",
     "--cov=course_downloader",
     "--cov-report=term-missing",
-    # "--cov-fail-under=70",
+    "--cov-fail-under=75",
 ]
-
-[tool.mypy]
-python_version = "3.14"
-strict = true
-warn_unused_ignores = true
-warn_return_any = true

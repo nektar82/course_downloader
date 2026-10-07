@@ -8,7 +8,7 @@ from pathlib import Path
 from course_downloader.config import build_settings, load_manifest
 from course_downloader.course_sync import CourseSynchronizer
 from course_downloader.manifest import parse_courses
-from course_downloader.models import Course, Settings
+from course_downloader.models import Course, Settings, SyncReport
 
 LOGGER = logging.getLogger(__name__)
 
@@ -77,12 +77,13 @@ class CourseDownloaderApplication:
 
     def sync_all(
         self,
-    ) -> None:
+    ) -> SyncReport:
         """Synchronize all configured courses."""
 
         self.validate()
 
         synchronizer = CourseSynchronizer(self.settings)
+        report = SyncReport()
 
         LOGGER.info(
             "Synchronizing %d courses.",
@@ -90,16 +91,22 @@ class CourseDownloaderApplication:
         )
 
         for course in self.courses:
-            synchronizer.synchronize(course)
+            result = synchronizer.synchronize(course)
+            report.succeeded += result.succeeded
+            report.skipped += result.skipped
+            report.failed += result.failed
+            report.warnings.extend(result.warnings)
+
+        return report
 
     def sync_course(
         self,
         course_id: str,
-    ) -> None:
+    ) -> SyncReport:
         """Synchronize a single course."""
 
         course = self.get_course(course_id)
 
         synchronizer = CourseSynchronizer(self.settings)
 
-        synchronizer.synchronize(course)
+        return synchronizer.synchronize(course)

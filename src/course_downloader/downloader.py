@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from contextlib import suppress
 from pathlib import Path
 from types import TracebackType
 
@@ -51,23 +52,42 @@ class Downloader:
             exist_ok=True,
         )
 
-        with self.client.stream(
-            "GET",
-            url,
-        ) as response:
-            response.raise_for_status()
+        temp_destination = destination.with_suffix(destination.suffix + ".part")
+        total_bytes = 0
 
-            content_length = response.headers.get("Content-Length")
+        try:
+            with self.client.stream(
+                "GET",
+                url,
+            ) as response:
+                response.raise_for_status()
 
-            if content_length:
-                size_mb = int(content_length) / 1024 / 1024
+                content_length = response.headers.get("Content-Length")
+                if content_length:
+                    size_bytes = int(content_length)
+                    if size_bytes / 1024 / 1024 > MAX_DOWNLOAD_SIZE_MB:
+                        raise ValueError(
+                            "Download exceeds configured size limit."
+                        )
 
-                if size_mb > MAX_DOWNLOAD_SIZE_MB:
-                    raise ValueError("Download exceeds configured size limit.")
+                with temp_destination.open("wb") as file:
+                    for chunk in response.iter_bytes():
+                        if not chunk:
+                            continue
 
-            with destination.open("wb") as file:
-                for chunk in response.iter_bytes():
-                    file.write(chunk)
+                        total_bytes += len(chunk)
+                        if total_bytes / 1024 / 1024 > MAX_DOWNLOAD_SIZE_MB:
+                            raise ValueError(
+                                "Download exceeds configured size limit."
+                            )
+
+                        file.write(chunk)
+
+            temp_destination.replace(destination)
+        except Exception:
+            with suppress(FileNotFoundError):
+                temp_destination.unlink()
+            raise
 
         LOGGER.info(
             "Downloaded %s",
