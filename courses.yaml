@@ -1,4 +1,4 @@
-library_root: ""
+course_download_root: "CourseDownloads"
 
 defaults:
   timestamp_minutes: 5

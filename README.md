@@ -1,48 +1,14 @@
 # Course Downloader
 
-Course Downloader is a Python application for building and maintaining a structured local study library from publicly accessible educational resources.
+Course Downloader builds and maintains a structured local study library from
+publicly accessible educational resources. It can crawl public course sites,
+download documents, clone public GitHub repositories, collect YouTube
+transcripts, convert applicable documents to Markdown, and optionally use local
+Whisper transcription when captions are genuinely unavailable.
 
-The project can:
-
-- Crawl public course websites
-- Discover and download public course documents
-- Clone public GitHub repositories
-- Collect YouTube transcripts
-- Convert downloaded resources to Markdown
-- Generate per-course indexes
-- Optionally perform local Whisper transcription for videos that do not have public captions
-
-The software is intentionally designed to respect access controls.
-
-It does not attempt to bypass:
-
-- Authentication
-- Membership requirements
-- Paywalls
-- DRM
-- Private content
-- Course platform restrictions
-
-Restricted resources are stored only as references.
-
----
-
-# Features
-
-Supported source types:
-
-| Type | Description |
-|--------|-------------|
-| course_page | Crawl public course websites |
-| youtube_playlist | Process YouTube playlists |
-| youtube_video | Process single YouTube videos |
-| github | Clone or update GitHub repositories |
-| direct | Download explicit public files |
-| reference | Store URLs without downloading |
-
----
-
-# Installation
+The application does not bypass authentication, membership requirements,
+paywalls, DRM, private content, or course-platform restrictions. Restricted
+resources should be represented as `reference` sources.
 
 ## Requirements
 
@@ -52,57 +18,55 @@ Required:
 - Git
 - yt-dlp
 
-Optional:
+Optional for local speech-to-text fallback:
 
 - ffmpeg
 - faster-whisper
 
----
-
-## Create a Virtual Environment
-
-Windows:
-
-```powershell
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-Linux/macOS:
+## Installation
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e .
 ```
 
----
-
-## Install
+For development:
 
 ```bash
-pip install -e .
+python -m pip install -e .[dev]
 ```
 
-Development installation:
+For Whisper support:
 
 ```bash
-pip install -e .[dev]
+python -m pip install -e .[whisper]
 ```
 
-Whisper support:
+## Running
+
+The installed console entry point is:
 
 ```bash
-pip install -e .[whisper]
+course-downloader --help
 ```
 
----
+The package also supports module execution:
 
-# Usage
+```bash
+python -m course_downloader --help
+```
 
 List courses:
 
 ```bash
 course-downloader list courses.yaml
+```
+
+Validate the manifest:
+
+```bash
+course-downloader validate courses.yaml
 ```
 
 Synchronize all courses:
@@ -111,70 +75,78 @@ Synchronize all courses:
 course-downloader sync courses.yaml
 ```
 
----
-
-# Project Structure
-
-```text
-course_downloader/
-├── pyproject.toml
-├── README.md
-├── courses.yaml
-├── src/
-│   └── course_downloader/
-├── tests/
-└── .github/
-```
-
----
-
-# Development
-
-Run Ruff:
+Synchronize one course:
 
 ```bash
-ruff check .
+course-downloader sync courses.yaml --course stanford-cs336-2026
 ```
 
-Format code:
+The legacy form remains available:
+
+```bash
+course-downloader sync-course courses.yaml stanford-cs336-2026
+```
+
+Filter by tag, override the course download root, or force reprocessing:
+
+```bash
+course-downloader sync courses.yaml --tag iaap
+course-downloader sync courses.yaml --course-download-root D:/StudyLibrary
+course-downloader sync courses.yaml --course stanford-cs336-2026 --refresh
+```
+
+By default, existing downloads and transcripts are reused where possible.
+`--refresh` forces document/transcript regeneration. Git repositories are
+updated with `git pull --ff-only` on each synchronization.
+
+## Manifest behavior
+
+`course_download_root` is the parent directory that contains all downloaded courses. Each course then has its own `course_root` beneath that directory, derived from the course `path`.
+
+Supported source types are `course_page`, `youtube_playlist`, `youtube_video`,
+`youtube`, `github`, `direct`, and `reference`.
+
+The parser rejects unknown keys, invalid regular expressions, negative crawl
+depths, malformed URLs, and unsupported source types. Course-page crawling has
+a default safety limit of 500 pages per source; override it with `max_pages`
+when necessary.
+
+`allowed_domains` controls which HTML pages may be crawled. YouTube and GitHub
+links are classified before that restriction. External document downloads are
+controlled separately by `download_external_documents`.
+
+Each course writes `metadata/sync-report.json` with the latest synchronization
+summary, including document, transcript, repository, page, warning, and failure
+counts.
+
+## Reliability model
+
+Downloads are streamed with a maximum-size check, written to `.part` files,
+and atomically renamed only after successful completion. Transient HTTP errors
+are retried with bounded exponential backoff and `Retry-After` support.
+
+A missing YouTube transcript can trigger Whisper only when
+`transcribe_if_no_captions` is enabled. Transient transcript-service failures
+do not automatically trigger an expensive audio download and transcription.
+
+## Development
 
 ```bash
 ruff format .
-```
-
-Run tests:
-
-```bash
+ruff check . --fix
+mypy src
 pytest
 ```
 
-Run tests with coverage:
+CI runs formatting, linting, strict type checking, tests, coverage, and CLI
+smoke tests on Linux and Windows.
 
-```bash
-pytest --cov
-```
+## Security
 
-Run type checking:
+Manifests are trusted configuration. Review manifests from other people before
+running them. Downloaded repositories are not executed by Course Downloader.
+See `SECURITY.md` for the project's security boundary.
 
-```bash
-mypy src
-```
+## License
 
----
-
-# Security
-
-Course Downloader follows a conservative security model.
-
-Recommendations:
-
-- Download only trusted educational material.
-- Review downloaded repositories before executing code.
-- Run third-party code in isolated environments.
-- Keep Git, Python and dependencies up to date.
-
----
-
-# License
-
-MIT License.
+MIT. See `LICENSE`.

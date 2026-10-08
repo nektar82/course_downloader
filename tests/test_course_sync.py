@@ -1,65 +1,28 @@
 """Course synchronizer tests."""
 
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock
 
-from course_downloader.course_sync import (
-    CourseSynchronizer,
-)
-from course_downloader.models import (
-    Course,
-    Settings,
-    Source,
-)
+from course_downloader.course_sync import CourseSynchronizer
+from course_downloader.models import Course, Settings, Source, SyncReport
 
 
-@patch("course_downloader.course_sync.TranscriptFetcher.fetch")
-@patch("course_downloader.course_sync.YouTubeClient.get_entries")
-def test_sync_youtube_course(
-    mock_entries,
-    mock_fetch,
-    tmp_path: Path,
-) -> None:
-    mock_entries.return_value = (
-        "Test Playlist",
-        [
-            {
-                "id": "abc123",
-                "title": "Video One",
-            }
-        ],
-    )
-
-    mock_fetch.return_value = [
-        {
-            "text": "hello world",
-            "start": 0.0,
-            "duration": 1.0,
-        }
-    ]
-
-    settings = Settings(
-        root=tmp_path,
-    )
+def test_sync_dispatches_and_persists_report(tmp_path: Path) -> None:
+    downloader = Mock()
+    settings = Settings(course_download_root=tmp_path)
+    synchronizer = CourseSynchronizer(settings, downloader=downloader)
+    handler = Mock()
+    handler.sync.return_value = SyncReport(succeeded=1, documents_downloaded=1)
+    synchronizer.handlers["direct"] = handler
 
     course = Course(
         id="test",
         name="Test Course",
         path="test_course",
-        sources=[
-            Source(
-                type="youtube",
-                url="https://youtube.com/test",
-            )
-        ],
+        sources=[Source(type="direct", url="https://example.com/a.txt")],
     )
+    report = synchronizer.synchronize(course)
 
-    CourseSynchronizer(
-        settings,
-    ).synchronize(
-        course,
-    )
-
-    lectures = list((tmp_path / "test_course" / "lectures").glob("*.md"))
-
-    assert len(lectures) == 1
+    assert report.succeeded == 1
+    assert report.documents_downloaded == 1
+    assert (tmp_path / "test_course" / "metadata" / "sync-report.json").exists()

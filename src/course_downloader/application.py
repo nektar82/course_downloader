@@ -14,28 +14,22 @@ LOGGER = logging.getLogger(__name__)
 
 
 class CourseDownloaderApplication:
-    """Main application façade.
-
-    Coordinates configuration loading,
-    validation, synchronization,
-    crawling, indexing and reporting.
-    """
+    """Main application façade."""
 
     def __init__(
         self,
         manifest_path: Path,
+        *,
+        course_download_root_override: Path | None = None,
+        refresh: bool = False,
     ) -> None:
-        """Initialize the application.
-
-        Args:
-            manifest_path: Path to the manifest file.
-        """
         self.manifest_path = manifest_path
-
         self.manifest = load_manifest(manifest_path)
-
-        self.settings: Settings = build_settings(self.manifest)
-
+        self.settings: Settings = build_settings(
+            self.manifest,
+            course_download_root_override=course_download_root_override,
+            refresh=refresh,
+        )
         self.courses: list[Course] = parse_courses(self.manifest)
 
     def list_courses(self) -> list[Course]:
@@ -43,70 +37,78 @@ class CourseDownloaderApplication:
 
         return self.courses
 
-    def get_course(
-        self,
-        course_id: str,
-    ) -> Course:
+    def get_course(self, course_id: str) -> Course:
         """Get a course by identifier."""
 
         for course in self.courses:
             if course.id == course_id:
                 return course
-
         raise ValueError(f"Unknown course id: {course_id}")
 
-    def validate(
-        self,
-    ) -> None:
-        """Validate manifest integrity."""
+    def validate(self) -> None:
+        """Validate cross-course manifest integrity."""
 
         seen_ids: set[str] = set()
-
+        seen_paths: set[str] = set()
         for course in self.courses:
             if course.id in seen_ids:
                 raise ValueError(f"Duplicate course id: {course.id}")
-
+            if course.path in seen_paths:
+                raise ValueError(f"Duplicate course path: {course.path}")
             seen_ids.add(course.id)
+            seen_paths.add(course.path)
 
-    def doctor(
+    def select_courses(
         self,
-    ) -> None:
-        """Run diagnostics."""
+        *,
+        course_ids: set[str] | None = None,
+        tags: set[str] | None = None,
+    ) -> list[Course]:
+        """Select courses by ID and/or tag."""
 
-        LOGGER.info("Running diagnostics.")
+        selected = self.courses
+        if course_ids:
+            known_ids = {course.id for course in self.courses}
+            unknown = sorted(course_ids - known_ids)
+            if unknown:
+                raise ValueError(f"Unknown course id(s): {', '.join(unknown)}")
+            selected = [
+                course for course in selected if course.id in course_ids
+            ]
+
+        if tags:
+            selected = [
+                course
+                for course in selected
+                if tags.intersection(course.tags or [])
+            ]
+
+        if (course_ids or tags) and not selected:
+            raise ValueError("No courses matched the requested filters.")
+        return selected
 
     def sync_all(
         self,
+        *,
+        course_ids: set[str] | None = None,
+        tags: set[str] | None = None,
     ) -> SyncReport:
-        """Synchronize all configured courses."""
+        """Synchronize selected configured courses."""
 
         self.validate()
-
-        synchronizer = CourseSynchronizer(self.settings)
+        selected = self.select_courses(course_ids=course_ids, tags=tags)
         report = SyncReport()
+        LOGGER.info("Synchronizing %d courses.", len(selected))
 
-        LOGGER.info(
-            "Synchronizing %d courses.",
-            len(self.courses),
-        )
-
-        for course in self.courses:
-            result = synchronizer.synchronize(course)
-            report.succeeded += result.succeeded
-            report.skipped += result.skipped
-            report.failed += result.failed
-            report.warnings.extend(result.warnings)
-
+        with CourseSynchronizer(self.settings) as synchronizer:
+            for course in selected:
+                report.merge(synchronizer.synchronize(course))
         return report
 
-    def sync_course(
-        self,
-        course_id: str,
-    ) -> SyncReport:
+    def sync_course(self, course_id: str) -> SyncReport:
         """Synchronize a single course."""
 
+        self.validate()
         course = self.get_course(course_id)
-
-        synchronizer = CourseSynchronizer(self.settings)
-
-        return synchronizer.synchronize(course)
+        with CourseSynchronizer(self.settings) as synchronizer:
+            return synchronizer.synchronize(course)

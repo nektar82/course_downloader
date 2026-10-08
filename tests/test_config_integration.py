@@ -15,7 +15,7 @@ def test_manifest_to_settings(
 
     manifest_file.write_text(
         """
-library_root: TestLibrary
+course_download_root: TestCourseDownloads
 
 defaults:
   timestamp_minutes: 15
@@ -37,7 +37,7 @@ courses:
         manifest,
     )
 
-    assert settings.root.name == "TestLibrary"
+    assert settings.course_download_root.name == "TestCourseDownloads"
 
     assert settings.timestamp_minutes == 15
 

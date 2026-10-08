@@ -16,9 +16,12 @@ class WhisperTranscriber:
         self,
         model_name: str,
         keep_audio: bool,
+        *,
+        download_timeout_seconds: int = 1800,
     ) -> None:
         self.model_name = model_name
         self.keep_audio = keep_audio
+        self.download_timeout_seconds = download_timeout_seconds
         self._model: Any | None = None
 
     def transcribe(
@@ -36,63 +39,60 @@ class WhisperTranscriber:
         except ImportError as exc:
             raise RuntimeError("faster-whisper is not installed.") from exc
 
-        audio_directory.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
+        audio_directory.mkdir(parents=True, exist_ok=True)
         template = audio_directory / f"{video_id}.%(ext)s"
+        audio_path: Path | None = None
 
-        subprocess.run(
-            [
-                "yt-dlp",
-                "-f",
-                "bestaudio/best",
-                "--extract-audio",
-                "--audio-format",
-                "wav",
-                "-o",
-                str(template),
-                f"https://www.youtube.com/watch?v={video_id}",
-            ],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-
-        audio_path = audio_directory / f"{video_id}.wav"
-
-        if not audio_path.exists():
-            matches = list(audio_directory.glob(f"{video_id}.*"))
-
-            if not matches:
-                raise RuntimeError("yt-dlp did not produce audio.")
-
-            audio_path = matches[0]
-
-        if self._model is None:
-            self._model = WhisperModel(
-                self.model_name,
-                device="auto",
-                compute_type="auto",
+        try:
+            subprocess.run(
+                [
+                    "yt-dlp",
+                    "-f",
+                    "bestaudio/best",
+                    "--extract-audio",
+                    "--audio-format",
+                    "wav",
+                    "-o",
+                    str(template),
+                    f"https://www.youtube.com/watch?v={video_id}",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=self.download_timeout_seconds,
             )
 
-        segments, _ = self._model.transcribe(
-            str(audio_path),
-            vad_filter=True,
-        )
+            audio_path = audio_directory / f"{video_id}.wav"
+            if not audio_path.exists():
+                matches = list(audio_directory.glob(f"{video_id}.*"))
+                if not matches:
+                    raise RuntimeError("yt-dlp did not produce audio.")
+                audio_path = matches[0]
 
-        results = [
-            {
-                "text": segment.text.strip(),
-                "start": float(segment.start),
-                "duration": float(segment.end - segment.start),
-            }
-            for segment in segments
-        ]
+            if self._model is None:
+                self._model = WhisperModel(
+                    self.model_name,
+                    device="auto",
+                    compute_type="auto",
+                )
 
-        if not self.keep_audio:
-            with suppress(OSError):
-                audio_path.unlink()
-
-        return results
+            segments, _ = self._model.transcribe(
+                str(audio_path),
+                vad_filter=True,
+            )
+            return [
+                {
+                    "text": segment.text.strip(),
+                    "start": float(segment.start),
+                    "duration": float(segment.end - segment.start),
+                }
+                for segment in segments
+            ]
+        finally:
+            if not self.keep_audio:
+                candidates = list(audio_directory.glob(f"{video_id}.*"))
+                if audio_path is not None:
+                    candidates.append(audio_path)
+                for candidate in set(candidates):
+                    with suppress(OSError):
+                        candidate.unlink()

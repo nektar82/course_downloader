@@ -4,15 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "course-downloader"
-version = "1.0.0"
+version = "0.2.0"
 description = "Download and organize public educational resources into a structured local study library."
 readme = "README.md"
 requires-python = ">=3.14"
 license = { text = "MIT" }
-
-authors = [
-    { name = "Nektarios Paisios" }
-]
+authors = [{ name = "Nektarios Paisios" }]
 
 dependencies = [
     "beautifulsoup4>=4.13",
@@ -22,23 +19,18 @@ dependencies = [
     "typer>=0.16",
     "rich>=14.0",
     "youtube-transcript-api>=1.1",
-    "yt-dlp>=2025.8"
+    "yt-dlp>=2025.8",
 ]
 
 [project.optional-dependencies]
-whisper = [
-    "faster-whisper>=1.1"
-]
-
+whisper = ["faster-whisper>=1.1"]
 dev = [
     "mypy>=1.17",
     "pytest>=8.4",
     "pytest-cov>=6.2",
-    "pytest-httpx>=0.35",
     "pytest-mock>=3.14",
-    "responses>=0.25",
     "ruff>=0.12",
-    "types-PyYAML>=6.0"
+    "types-PyYAML>=6.0",
 ]
 
 [project.scripts]
@@ -56,17 +48,8 @@ line-ending = "auto"
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = [
-    "E",
-    "F",
-    "I",
-    "B",
-    "UP",
-    "SIM",
-]
-
-ignore = [
-]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]
 
 [tool.mypy]
 python_version = "3.14"
@@ -76,9 +59,7 @@ warn_return_any = true
 exclude = "^src/old_course_downloader/"
 
 [[tool.mypy.overrides]]
-module = [
-    "faster_whisper",
-]
+module = ["faster_whisper"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
