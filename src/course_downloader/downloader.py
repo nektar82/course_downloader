@@ -73,7 +73,7 @@ class Downloader:
                     continue
                 response.raise_for_status()
                 return response
-            except httpx.TimeoutException, httpx.TransportError:
+            except (httpx.TimeoutException, httpx.TransportError):
                 if attempt >= self.retries:
                     raise
                 self._delay(attempt)
@@ -122,7 +122,7 @@ class Downloader:
                 temp_destination.replace(destination)
                 LOGGER.info("Downloaded %s", url)
                 return destination
-            except httpx.TimeoutException, httpx.TransportError:
+            except (httpx.TimeoutException, httpx.TransportError):
                 with suppress(FileNotFoundError):
                     temp_destination.unlink()
                 if attempt >= self.retries:

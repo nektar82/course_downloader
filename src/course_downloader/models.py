@@ -30,6 +30,7 @@ class Source:
     max_pages: int = DEFAULT_MAX_PAGES
     download_documents: bool = True
     download_external_documents: bool = True
+    save_pages: bool = True
     discover_youtube: bool = True
     discover_github: bool = True
     allowed_domains: list[str] | None = None
@@ -48,6 +49,7 @@ class CrawlResult:
     youtube: set[str] = field(default_factory=set)
     github: set[str] = field(default_factory=set)
     documents: set[str] = field(default_factory=set)
+    page_contents: dict[str, str] = field(default_factory=dict)
     limit_reached: bool = False
 
     def __getitem__(self, key: str) -> set[str]:
@@ -70,6 +72,7 @@ class SyncReport:
     documents_downloaded: int = 0
     documents_converted: int = 0
     documents_skipped: int = 0
+    pages_saved: int = 0
     conversion_failures: int = 0
     videos_found: int = 0
     transcripts_created: int = 0
@@ -100,6 +103,7 @@ class SyncReport:
         self.documents_downloaded += other.documents_downloaded
         self.documents_converted += other.documents_converted
         self.documents_skipped += other.documents_skipped
+        self.pages_saved += other.pages_saved
         self.conversion_failures += other.conversion_failures
         self.videos_found += other.videos_found
         self.transcripts_created += other.transcripts_created

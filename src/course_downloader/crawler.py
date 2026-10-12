@@ -122,6 +122,7 @@ class CourseCrawler:
             if "html" not in content_type.lower():
                 continue
 
+            result.page_contents[url] = response.text
             soup = BeautifulSoup(response.text, "html.parser")
             for link in soup.find_all("a", href=True):
                 href = normalize_url(urljoin(url, str(link["href"])))

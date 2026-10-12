@@ -29,7 +29,7 @@ dev = [
     "pytest>=8.4",
     "pytest-cov>=6.2",
     "pytest-mock>=3.14",
-    "ruff>=0.12",
+    "ruff>=0.17",
     "types-PyYAML>=6.0",
 ]
 

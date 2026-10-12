@@ -37,6 +37,7 @@ _ALLOWED_SOURCE_KEYS = {
     "download_external_documents",
     "discover_youtube",
     "discover_github",
+    "save_pages",
     "allowed_domains",
     "include_regex",
     "exclude_regex",
@@ -48,6 +49,7 @@ _BOOL_SOURCE_KEYS = {
     "download_external_documents",
     "discover_youtube",
     "discover_github",
+    "save_pages",
 }
 _REGEX_SOURCE_KEYS = {
     "include_regex",
@@ -157,6 +159,7 @@ def parse_sources(
                 download_external_documents=item.get(
                     "download_external_documents", True
                 ),
+                save_pages=item.get("save_pages", True),
                 discover_youtube=item.get("discover_youtube", True),
                 discover_github=item.get("discover_github", True),
                 allowed_domains=allowed_domains,

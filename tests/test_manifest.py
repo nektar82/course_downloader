@@ -102,3 +102,23 @@ def test_negative_crawl_depth_is_rejected() -> None:
                 }
             ]
         )
+
+
+def test_save_pages_defaults_to_true() -> None:
+    sources = parse_sources(
+        [{"type": "course_page", "url": "https://example.com"}]
+    )
+    assert sources[0].save_pages is True
+
+
+def test_save_pages_can_be_disabled() -> None:
+    sources = parse_sources(
+        [
+            {
+                "type": "course_page",
+                "url": "https://example.com",
+                "save_pages": False,
+            }
+        ]
+    )
+    assert sources[0].save_pages is False

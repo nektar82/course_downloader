@@ -57,6 +57,9 @@ courses:
         crawl_depth: 1
         download_documents: true
         discover_youtube: false
+        # Student project archives (e.g. /proj2008/) are excluded: they are
+        # not study material, and there are over a hundred of them.
+        exclude_regex: "/proj[0-9]{4}/"
       - type: reference
         label: "Stanford Online CS229 public lectures (2018 fundamentals)"
         url: "https://www.youtube.com/watch?v=jGwO_UgTS7I"
@@ -79,6 +82,42 @@ courses:
         crawl_depth: 1
         download_documents: true
         discover_youtube: true
+
+  - id: karpathy-zero-to-hero
+    name: "Karpathy - Neural Networks: Zero to Hero"
+    path: "AI/03-Deep-Learning/Karpathy-Zero-to-Hero"
+    status: "required-hands-on"
+    why: "Build neural networks from scratch in code: micrograd autograd, makemore language models, backprop by hand, GPT from scratch, BPE tokenizer, GPT-2 reproduction. The single best hands-on bridge from senior software engineer to LLM engineer, and ideal preparation before the CS336 assignments."
+    sources:
+      - type: course_page
+        url: "https://karpathy.ai/zero-to-hero.html"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
+      - type: youtube_playlist
+        label: "Neural Networks: Zero to Hero playlist"
+        url: "https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ"
+      - type: github
+        label: "nn-zero-to-hero notebooks"
+        url: "https://github.com/karpathy/nn-zero-to-hero"
+      - type: github
+        label: "nanoGPT"
+        url: "https://github.com/karpathy/nanoGPT"
+
+  - id: fastai-practical-deep-learning
+    name: "fast.ai - Practical Deep Learning for Coders"
+    path: "AI/03-Deep-Learning/fast.ai-Practical-Deep-Learning"
+    status: "required-practical"
+    why: "Code-first deep learning for working programmers: vision, NLP, tabular and collaborative filtering with PyTorch/fastai, plus deployment. Complements the theory-heavy Stanford sequence with shipped-model practice."
+    sources:
+      - type: course_page
+        url: "https://course.fast.ai/"
+        crawl_depth: 2
+        allowed_domains: [course.fast.ai]
+        download_documents: true
+        discover_youtube: true
+        discover_github: true
 
   - id: stanford-cs224n-2026
     name: "Stanford CS224N - NLP with Deep Learning (Winter 2026 materials + public 2024 videos)"
@@ -329,6 +368,19 @@ courses:
         discover_youtube: true
         discover_github: true
 
+  - id: cryptopals-challenges
+    name: "Cryptopals Crypto Challenges"
+    path: "Cybersecurity/03-Cryptography/Cryptopals-Challenges"
+    status: "required-hands-on"
+    why: "Eight sets of programming challenges that teach applied cryptography by breaking real-world constructions: block/stream ciphers, padding oracles, CBC bitflipping, DH/RSA attacks, PRNG and hash weaknesses. The hands-on complement to CS255 theory; doubles as portfolio code for security roles."
+    sources:
+      - type: course_page
+        url: "https://cryptopals.com/"
+        crawl_depth: 2
+        download_documents: true
+        discover_youtube: false
+        discover_github: false
+
   - id: pwn-college
     name: "pwn.college - Core exploitation curriculum"
     path: "Cybersecurity/04-Exploitation/pwn.college"
@@ -445,6 +497,19 @@ courses:
         download_documents: true
         discover_youtube: false
         discover_github: true
+
+  - id: security-engineering-book
+    name: "Ross Anderson - Security Engineering (3rd edition, free online)"
+    path: "Cybersecurity/10-Security-Engineering/Security-Engineering-Anderson"
+    status: "required-reference"
+    why: "The discipline's central reference: threat models, security economics and psychology, protocols, access control, hardware protection and how real systems fail in operation. Read alongside the systems-security courses, not cover to cover."
+    sources:
+      - type: course_page
+        url: "https://www.cl.cam.ac.uk/~rja14/book.html"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: false
+        discover_github: false
 
   # -------------------- IAAP Accessibility Certifications --------------------
   - id: iaap-certification-common

@@ -106,6 +106,13 @@ updated with `git pull --ff-only` on each synchronization.
 Supported source types are `course_page`, `youtube_playlist`, `youtube_video`,
 `youtube`, `github`, `direct`, and `reference`.
 
+Crawled HTML pages are saved under each course's `source/web/` directory and
+converted to Markdown alongside downloaded documents, unless the source sets
+`save_pages: false`. YouTube transcripts are fetched from the transcript API
+first; when that fails, subtitle files are downloaded with yt-dlp (manual
+subtitles preferred, automatic captions as fallback) before any Whisper
+transcription is considered.
+
 The parser rejects unknown keys, invalid regular expressions, negative crawl
 depths, malformed URLs, and unsupported source types. Course-page crawling has
 a default safety limit of 500 pages per source; override it with `max_pages`
@@ -125,9 +132,11 @@ Downloads are streamed with a maximum-size check, written to `.part` files,
 and atomically renamed only after successful completion. Transient HTTP errors
 are retried with bounded exponential backoff and `Retry-After` support.
 
-A missing YouTube transcript can trigger Whisper only when
-`transcribe_if_no_captions` is enabled. Transient transcript-service failures
-do not automatically trigger an expensive audio download and transcription.
+A missing YouTube transcript first tries the cheap yt-dlp subtitle download.
+Whisper is attempted only when `transcribe_if_no_captions` is enabled and no
+transcript or subtitle file is available. Transient transcript-service
+failures do not automatically trigger an expensive audio download and
+transcription.
 
 ## Development
 

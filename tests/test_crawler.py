@@ -81,3 +81,20 @@ def test_max_pages_stops_crawl() -> None:
     discovered = CourseCrawler(downloader).discover(source)
     assert discovered.limit_reached is True
     assert len(discovered.pages) == 1
+
+
+def test_discover_records_page_contents() -> None:
+    html = "<html><body>Lecture notes</body></html>"
+    downloader = _downloader_with_html(html)
+    discovered = CourseCrawler(downloader).discover("https://example.com")
+    assert discovered.page_contents == {"https://example.com": html}
+
+
+def test_non_html_responses_have_no_page_contents() -> None:
+    downloader = Mock()
+    response = Mock()
+    response.headers = {"content-type": "application/pdf"}
+    response.text = "%PDF-1.4"
+    downloader.get.return_value = response
+    discovered = CourseCrawler(downloader).discover("https://example.com")
+    assert discovered.page_contents == {}

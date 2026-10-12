@@ -13,6 +13,11 @@ from course_downloader.downloader import Downloader
 from course_downloader.github import GitHubManager, repository_parts
 from course_downloader.markdown_converter import MarkdownConverter
 from course_downloader.models import Settings, Source, SyncReport
+from course_downloader.subtitles import (
+    SubtitleDownloader,
+    SubtitleError,
+    parse_vtt,
+)
 from course_downloader.transcript_fetcher import (
     TranscriptFetcher,
     TranscriptUnavailableError,
@@ -76,6 +81,40 @@ class DocumentProcessor:
 
         return report
 
+    def process_html_page(
+        self,
+        url: str,
+        html: str,
+        paths: CoursePaths,
+    ) -> SyncReport:
+        """Persist a crawled HTML page and convert it to Markdown."""
+
+        report = SyncReport()
+        filename = url_filename(url, fallback="page", unique=True)
+        if not Path(filename).suffix:
+            filename = f"{filename}.html"
+        destination = paths.web / filename
+        markdown_destination = paths.markdown / f"{Path(filename).stem}.md"
+
+        if destination.exists() and not self.settings.refresh:
+            return report
+
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(html, encoding="utf-8")
+        report.pages_saved += 1
+
+        if markdown_destination.exists() and not self.settings.refresh:
+            return report
+
+        converted = self.converter.convert(destination, markdown_destination)
+        if converted is None:
+            report.conversion_failures += 1
+            report.warnings.append(f"Could not convert page to Markdown: {url}")
+        else:
+            report.documents_converted += 1
+
+        return report
+
 
 class ReferenceSourceHandler:
     """Record-only source handler."""
@@ -130,10 +169,12 @@ class YouTubeSourceHandler:
         settings: Settings,
         client: YouTubeClient,
         fetcher: TranscriptFetcher,
+        subtitles: SubtitleDownloader | None = None,
     ) -> None:
         self.settings = settings
         self.client = client
         self.fetcher = fetcher
+        self.subtitles = subtitles or SubtitleDownloader()
 
     @staticmethod
     def _write_lecture(
@@ -218,34 +259,51 @@ class YouTubeSourceHandler:
                     video_id, list(self.settings.languages)
                 )
                 segments = list(fetched)
-            except TranscriptUnavailableError as exc:
-                if not self.settings.transcribe_if_no_captions:
-                    report.transcript_failures += 1
-                    report.warnings.append(f"{title}: {exc}")
-                    continue
-
-                if transcriber is None:
-                    transcriber = WhisperTranscriber(
-                        self.settings.whisper_model,
-                        self.settings.keep_fallback_audio,
-                    )
-                try:
-                    segments = list(
-                        transcriber.transcribe(video_id, paths.fallback_audio)
-                    )
-                    provenance = f"whisper:{self.settings.whisper_model}"
-                except Exception as whisper_exc:
-                    report.transcript_failures += 1
-                    report.warnings.append(
-                        f"Whisper fallback failed for {title}: {whisper_exc}"
-                    )
-                    continue
             except Exception as exc:
-                report.transcript_failures += 1
-                report.warnings.append(
-                    f"Transcript service failed for {title}; Whisper was not used: {exc}"
+                whisper_allowed = (
+                    isinstance(exc, TranscriptUnavailableError)
+                    and self.settings.transcribe_if_no_captions
                 )
-                continue
+                try:
+                    subtitle_file = self.subtitles.download(
+                        video_id,
+                        list(self.settings.languages),
+                        paths.raw_transcripts,
+                    )
+                    segments = parse_vtt(subtitle_file)
+                    if not segments:
+                        raise SubtitleError(
+                            "Subtitle file contained no usable cues."
+                        )
+                    provenance = "youtube-subtitles"
+                except SubtitleError as subtitle_exc:
+                    if not whisper_allowed:
+                        report.transcript_failures += 1
+                        report.warnings.append(
+                            f"{title}: {exc} "
+                            f"(subtitle fallback: {subtitle_exc})"
+                        )
+                        continue
+
+                    if transcriber is None:
+                        transcriber = WhisperTranscriber(
+                            self.settings.whisper_model,
+                            self.settings.keep_fallback_audio,
+                        )
+                    try:
+                        segments = list(
+                            transcriber.transcribe(
+                                video_id, paths.fallback_audio
+                            )
+                        )
+                        provenance = f"whisper:{self.settings.whisper_model}"
+                    except Exception as whisper_exc:
+                        report.transcript_failures += 1
+                        report.warnings.append(
+                            f"Whisper fallback failed for {title}: "
+                            f"{whisper_exc}"
+                        )
+                        continue
 
             if not segments:
                 report.transcript_failures += 1
@@ -326,9 +384,16 @@ class CoursePageSourceHandler:
                 )
 
         for youtube_url in sorted(discovered.youtube):
-            nested = self.youtube_handler.sync(
-                Source(type="youtube", url=youtube_url), paths
-            )
+            try:
+                nested = self.youtube_handler.sync(
+                    Source(type="youtube", url=youtube_url), paths
+                )
+            except Exception as exc:
+                had_failure = True
+                report.warnings.append(
+                    f"YouTube sync failed for {youtube_url}: {exc}"
+                )
+                continue
             report.merge(nested, include_source_counts=False)
             had_failure = had_failure or bool(nested.failed)
 
@@ -341,6 +406,21 @@ class CoursePageSourceHandler:
                 report.warnings.append(
                     f"Document processing failed for {document_url}: {exc}"
                 )
+
+        if source.save_pages:
+            for page_url in sorted(discovered.page_contents):
+                try:
+                    nested = self.processor.process_html_page(
+                        page_url,
+                        discovered.page_contents[page_url],
+                        paths,
+                    )
+                    report.merge(nested, include_source_counts=False)
+                except Exception as exc:
+                    had_failure = True
+                    report.warnings.append(
+                        f"Page processing failed for {page_url}: {exc}"
+                    )
 
         if had_failure:
             report.failed += 1
