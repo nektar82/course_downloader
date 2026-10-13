@@ -60,11 +60,20 @@ class YouTubeClient:
             video_id = _single_video_id(url)
             if video_id is None:
                 raise
+            # Include yt-dlp's stderr so we know WHY it failed
+            # (bot detection, video removed, no captions, etc.)
+            raw_stderr = exc.stderr if isinstance(exc.stderr, str) else ""
+            stderr_lines = raw_stderr.strip().splitlines()
+            reason = (
+                stderr_lines[-1].strip()
+                if stderr_lines
+                else f"exit {exc.returncode}"
+            )
             LOGGER.warning(
-                "yt-dlp could not read %s (%s); treating it as a single "
+                "yt-dlp could not read %s: %s; treating it as a single "
                 "video so subtitles can still be attempted.",
                 url,
-                exc,
+                reason,
             )
             return (
                 "YouTube",
