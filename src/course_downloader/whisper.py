@@ -44,23 +44,32 @@ class WhisperTranscriber:
         audio_path: Path | None = None
 
         try:
-            subprocess.run(
-                [
-                    "yt-dlp",
-                    "-f",
-                    "bestaudio/best",
-                    "--extract-audio",
-                    "--audio-format",
-                    "wav",
-                    "-o",
-                    str(template),
-                    f"https://www.youtube.com/watch?v={video_id}",
-                ],
-                check=True,
-                capture_output=True,
-                text=True,
-                timeout=self.download_timeout_seconds,
-            )
+            try:
+                subprocess.run(
+                    [
+                        "yt-dlp",
+                        "-f",
+                        "bestaudio/best",
+                        "--extract-audio",
+                        "--audio-format",
+                        "wav",
+                        "-o",
+                        str(template),
+                        f"https://www.youtube.com/watch?v={video_id}",
+                    ],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=self.download_timeout_seconds,
+                )
+            except subprocess.CalledProcessError as exc:
+                stderr_tail = "\n".join(
+                    (exc.stderr or "").strip().splitlines()[-5:]
+                )
+                raise RuntimeError(
+                    f"yt-dlp audio download failed for {video_id} "
+                    f"(exit {exc.returncode}): {stderr_tail}"
+                ) from exc
 
             audio_path = audio_directory / f"{video_id}.wav"
             if not audio_path.exists():

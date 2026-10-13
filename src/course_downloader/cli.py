@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -80,12 +81,12 @@ def validate(manifest: Path) -> None:
 @app.command()
 def sync(
     manifest: Path,
-    course: list[str] | None = typer.Option(None, "--course"),
-    tag: list[str] | None = typer.Option(None, "--tag"),
-    course_download_root: Path | None = typer.Option(
-        None, "--course-download-root"
-    ),
-    refresh: bool = typer.Option(False, "--refresh"),
+    course: Annotated[list[str] | None, typer.Option("--course")] = None,
+    tag: Annotated[list[str] | None, typer.Option("--tag")] = None,
+    course_download_root: Annotated[
+        Path | None, typer.Option("--course-download-root")
+    ] = None,
+    refresh: Annotated[bool, typer.Option("--refresh")] = False,
 ) -> None:
     """Synchronize courses, optionally filtering by ID or tag."""
 
@@ -104,10 +105,10 @@ def sync(
 def sync_course(
     manifest: Path,
     course_id: str,
-    course_download_root: Path | None = typer.Option(
-        None, "--course-download-root"
-    ),
-    refresh: bool = typer.Option(False, "--refresh"),
+    course_download_root: Annotated[
+        Path | None, typer.Option("--course-download-root")
+    ] = None,
+    refresh: Annotated[bool, typer.Option("--refresh")] = False,
 ) -> None:
     """Synchronize a single course."""
 

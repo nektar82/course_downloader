@@ -173,6 +173,7 @@ courses:
         url: "https://huggingface.co/learn/llm-course/en/chapter1/1"
         crawl_depth: 2
         allowed_domains: [huggingface.co]
+        page_include_regex: "^https://huggingface\\.co/learn/"
         download_documents: true
         discover_youtube: true
         discover_github: true
@@ -218,6 +219,9 @@ courses:
         download_documents: true
         discover_youtube: true
         discover_github: true
+      - type: youtube_playlist
+        label: "Public CS234 lecture playlist (not linked from course page)"
+        url: "https://www.youtube.com/playlist?list=PLoROMvodv4rOSOPzutgyCTapiGlY2Nd8u"
 
   - id: stanford-cs224r-2026
     name: "Stanford CS224R - Deep Reinforcement Learning (Spring 2026)"
@@ -338,6 +342,9 @@ courses:
         download_documents: true
         discover_youtube: true
         discover_github: true
+      - type: youtube_playlist
+        label: "Public CS253 2019 lecture playlist (not linked from course page)"
+        url: "https://www.youtube.com/playlist?list=PLMF2PpA06Sb26oYT-dfNOt3Y4wwoLAho0"
 
   - id: portswigger-web-security-academy
     name: "PortSwigger Web Security Academy"
@@ -393,6 +400,7 @@ courses:
         download_documents: true
         discover_youtube: true
         discover_github: true
+        exclude_regex: "sajjadium/ctf-archives"
 
   - id: ost2-reverse-engineering
     name: "OpenSecurityTraining2 - Architecture and Reverse Engineering"
@@ -470,6 +478,20 @@ courses:
         download_documents: true
         discover_youtube: true
         discover_github: true
+      - type: course_page
+        label: "OWASP GenAI Security Project - resources index"
+        url: "https://genai.owasp.org/resources/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: false
+        discover_github: false
+      - type: course_page
+        label: "OWASP GenAI Security Project - home (new publications)"
+        url: "https://genai.owasp.org/"
+        crawl_depth: 1
+        download_documents: true
+        discover_youtube: false
+        discover_github: false
 
   - id: secure-sdlc-supply-chain
     name: "Secure SDLC and Software Supply Chain reference set"
@@ -505,7 +527,7 @@ courses:
     why: "The discipline's central reference: threat models, security economics and psychology, protocols, access control, hardware protection and how real systems fail in operation. Read alongside the systems-security courses, not cover to cover."
     sources:
       - type: course_page
-        url: "https://www.cl.cam.ac.uk/~rja14/book.html"
+        url: "https://www.cl.cam.ac.uk/archive/rja14/book.html"
         crawl_depth: 1
         download_documents: true
         discover_youtube: false
@@ -551,6 +573,12 @@ courses:
       - type: reference
         label: "IAAP Knowledge-Based Tests (account/portal-dependent; not scraped)"
         url: "https://www.accessibilityassociation.org/knowledge-tests"
+      - type: direct
+        label: "IAAP Certification Candidate & Certificant Handbook 2025 (public PDF)"
+        url: "https://www.accessibilityassociation.org/sfsites/c/resource/CertHandbook2025"
+      - type: direct
+        label: "IAAP 2025 Hosted Exam Proctor Guide (public PDF)"
+        url: "https://www.accessibilityassociation.org/sfsites/c/resource/IAAP2025ProctorGuide"
 
   - id: iaap-cpacc
     name: "IAAP CPACC - Certified Professional in Accessibility Core Competencies"
@@ -581,6 +609,9 @@ courses:
       - type: reference
         label: "IAAP Education Portal / Princeton CPACC Preparation Course (login/member conditions may apply)"
         url: "https://www.accessibilityassociation.org/mini-courses"
+      - type: direct
+        label: "CPACC Body of Knowledge, October 2023 (public PDF)"
+        url: "https://assets.content-delivery-one.com/TCsghRSS4cbozo8kCJUYu8xYOQn84K2zwr0c7dzl.pdf"
 
   - id: iaap-was
     name: "IAAP WAS - Web Accessibility Specialist"
@@ -603,6 +634,9 @@ courses:
       - type: reference
         label: "IAAP WAS-related mini-courses / Education Portal (login required; not scraped)"
         url: "https://www.accessibilityassociation.org/mini-courses"
+      - type: direct
+        label: "WAS Body of Knowledge (public PDF)"
+        url: "https://www.accessibilityassociation.org/sfsites/c/resource/WASBoK_PDF"
 
   - id: iaap-ads
     name: "IAAP ADS - Accessible Document Specialist"
@@ -625,6 +659,9 @@ courses:
       - type: reference
         label: "IAAP Education Portal / document-accessibility courses (login conditions may apply; not scraped)"
         url: "https://www.accessibilityassociation.org/education-overview"
+      - type: direct
+        label: "ADS Body of Knowledge (public PDF)"
+        url: "https://www.accessibilityassociation.org/sfsites/c/resource/ADSBoK"
 
   - id: iaap-cpwa
     name: "IAAP CPWA - combined CPACC + WAS study index"

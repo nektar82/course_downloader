@@ -9,6 +9,7 @@ from types import TracebackType
 
 from course_downloader.course_paths import CoursePaths
 from course_downloader.crawler import CourseCrawler
+from course_downloader.dead_urls import DeadUrlStore
 from course_downloader.downloader import Downloader
 from course_downloader.github import GitHubManager
 from course_downloader.index_generator import IndexGenerator
@@ -52,9 +53,15 @@ class CourseSynchronizer:
             TranscriptFetcher(),
         )
         processor = DocumentProcessor(settings, self.downloader, converter)
+        dead_urls = DeadUrlStore(
+            settings.course_download_root / "metadata" / "dead-urls.json"
+        )
+        # Give processor access to dead-url store (set after creation to avoid circular)
+        processor.dead_urls = dead_urls
         crawler = CourseCrawler(
             self.downloader,
             request_delay_seconds=settings.request_delay_seconds,
+            dead_urls=dead_urls,
         )
         page_handler = CoursePageSourceHandler(
             settings,

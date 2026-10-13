@@ -4,6 +4,10 @@ from course_downloader import __version__
 
 USER_AGENT = f"CourseDownloader/{__version__} (personal educational archiving)"
 DEFAULT_TIMEOUT = 45
+# Overall deadline per HTTP operation. httpx timeouts are per-read: a server
+# trickling data indefinitely never triggers them, hanging the sync silently.
+# This caps the total wall-clock time of get()/download_file().
+DEFAULT_DEADLINE = 600
 MAX_DOWNLOAD_SIZE_MB = 500
 DEFAULT_MAX_PAGES = 500
 DEFAULT_RETRIES = 2
