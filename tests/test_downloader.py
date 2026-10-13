@@ -64,3 +64,42 @@ def test_interrupted_download_leaves_no_final_file(tmp_path: Path) -> None:
         downloader.download_file("https://example.com/broken.bin", destination)
     assert not destination.exists()
     assert not (tmp_path / "broken.bin.part").exists()
+
+
+def test_download_file_deadline_exceeded(tmp_path: Path) -> None:
+    downloader = Downloader(deadline_seconds=0, retries=0)
+    response = MagicMock()
+    response.status_code = 200
+    response.headers = {}
+    response.iter_bytes.return_value = [b"chunk"]
+    downloader.client.stream = MagicMock(return_value=_stream(response))
+
+    destination = tmp_path / "slow.bin"
+    with pytest.raises(httpx.TimeoutException, match="deadline"):
+        downloader.download_file("https://example.com/slow.bin", destination)
+
+
+def test_get_deadline_exceeded() -> None:
+    downloader = Downloader(deadline_seconds=0, retries=0)
+    response = MagicMock()
+    response.status_code = 200
+    response.headers = {}
+    response.iter_bytes.return_value = [b"chunk"]
+    downloader.client.stream = MagicMock(return_value=_stream(response))
+
+    with pytest.raises(httpx.TimeoutException, match="deadline"):
+        downloader.get("https://example.com/slow")
+
+
+def test_get_returns_usable_response() -> None:
+    downloader = Downloader()
+    response = MagicMock()
+    response.status_code = 200
+    response.headers = {"content-type": "text/html"}
+    response.request = MagicMock()
+    response.iter_bytes.return_value = [b"<html>"]
+    downloader.client.stream = MagicMock(return_value=_stream(response))
+
+    result = downloader.get("https://example.com/page")
+    assert result.status_code == 200
+    assert result.text == "<html>"

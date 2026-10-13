@@ -10,6 +10,7 @@ from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
+from course_downloader.dead_urls import DeadUrlStore
 from course_downloader.downloader import Downloader
 from course_downloader.github import repository_url
 from course_downloader.models import CrawlResult, Source
@@ -52,9 +53,11 @@ class CourseCrawler:
         downloader: Downloader,
         *,
         request_delay_seconds: float = 0.0,
+        dead_urls: DeadUrlStore | None = None,
     ) -> None:
         self.downloader = downloader
         self.request_delay_seconds = request_delay_seconds
+        self.dead_urls = dead_urls
 
     def discover(
         self,
@@ -107,6 +110,10 @@ class CourseCrawler:
                 continue
             attempted.add(url)
 
+            if self.dead_urls is not None and self.dead_urls.is_dead(url):
+                LOGGER.debug("Skipping known-dead URL: %s", url)
+                continue
+
             if len(attempted) > 1 and self.request_delay_seconds:
                 time.sleep(self.request_delay_seconds)
 
@@ -114,6 +121,12 @@ class CourseCrawler:
                 response = self.downloader.get(url)
             except Exception as exc:
                 result.failed_pages.add(url)
+                # A 404 means the resource is permanently gone; remember it
+                # so future passes don't waste time retrying it.
+                status = getattr(getattr(exc, "response", None), "status_code", None)
+                if status == 404 and self.dead_urls is not None:
+                    self.dead_urls.mark_dead(url)
+                    LOGGER.info("Marked dead URL (404): %s", url)
                 LOGGER.warning("Failed to fetch %s: %s", url, exc)
                 continue
 

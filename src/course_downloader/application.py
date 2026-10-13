@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 
@@ -87,6 +88,39 @@ class CourseDownloaderApplication:
             raise ValueError("No courses matched the requested filters.")
         return selected
 
+    def _failed_count(self, course: Course) -> int:
+        """Return the failed-operation count from the course's latest report."""
+
+        report_path = (
+            self.settings.course_download_root
+            / course.path
+            / "metadata"
+            / "sync-report.json"
+        )
+        try:
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            return int(payload.get("failed", 0))
+        except (OSError, ValueError):
+            return 0
+
+    def _prioritize_failures(self, courses: list[Course]) -> list[Course]:
+        """Order courses so those with outstanding failures run first.
+
+        Restarts (e.g. after a VM reboot) would otherwise re-walk clean
+        courses from the top of the manifest while courses needing retries
+        starve. Python's sort is stable, so manifest order is preserved
+        among courses with equal failure counts.
+        """
+
+        prioritized = sorted(courses, key=lambda c: -self._failed_count(c))
+        needs_work = sum(1 for c in courses if self._failed_count(c) > 0)
+        if needs_work:
+            LOGGER.info(
+                "Prioritizing %d courses with outstanding failures first.",
+                needs_work,
+            )
+        return prioritized
+
     def sync_all(
         self,
         *,
@@ -97,6 +131,7 @@ class CourseDownloaderApplication:
 
         self.validate()
         selected = self.select_courses(course_ids=course_ids, tags=tags)
+        selected = self._prioritize_failures(selected)
         report = SyncReport()
         LOGGER.info("Synchronizing %d courses.", len(selected))
 

@@ -50,6 +50,12 @@ class DocumentProcessor:
         self.settings = settings
         self.downloader = downloader
         self.converter = converter
+        # URLs that failed download in this run - skip on re-encounter
+        # to prevent infinite retry loops on hanging/broken URLs
+        self._failed_urls: set[str] = set()
+        # Persistent dead-URL store (set by course_sync after creation)
+        # for 404s that should never be retried across runs
+        self.dead_urls = None
 
     def process(
         self,
@@ -63,11 +69,30 @@ class DocumentProcessor:
         destination = paths.files / filename
         markdown_destination = paths.markdown / f"{destination.stem}.md"
 
+        # Skip URLs that already failed in this run (prevents infinite loops)
+        if url in self._failed_urls:
+            report.warnings.append(f"Skipping previously-failed URL: {url}")
+            return report
+
+        # Skip URLs known to be permanently dead (404 across runs)
+        if self.dead_urls is not None and self.dead_urls.is_dead(url):
+            report.warnings.append(f"Skipping known-dead URL: {url}")
+            return report
+
         if destination.exists() and not self.settings.refresh:
             report.documents_skipped += 1
         else:
-            self.downloader.download_file(url, destination)
-            report.documents_downloaded += 1
+            try:
+                self.downloader.download_file(url, destination)
+                report.documents_downloaded += 1
+            except Exception as exc:
+                # Mark as failed so we don't retry it again in this run
+                self._failed_urls.add(url)
+                # If it's a 404, mark as permanently dead for future runs
+                status = getattr(getattr(exc, "response", None), "status_code", None)
+                if status == 404 and self.dead_urls is not None:
+                    self.dead_urls.mark_dead(url)
+                raise
 
         if markdown_destination.exists() and not self.settings.refresh:
             return report
@@ -175,6 +200,8 @@ class YouTubeSourceHandler:
         self.client = client
         self.fetcher = fetcher
         self.subtitles = subtitles or SubtitleDownloader()
+        # URLs that failed in this run - skip on re-encounter
+        self._failed_urls: set[str] = set()
 
     @staticmethod
     def _write_lecture(
@@ -219,7 +246,17 @@ class YouTubeSourceHandler:
             raise ValueError("YouTube source requires a URL.")
 
         report = SyncReport()
-        playlist_title, entries = self.client.get_entries(source.url)
+
+        # Skip URLs that failed in this run
+        if source.url in self._failed_urls:
+            report.warnings.append(f"Skipping previously-failed YouTube URL: {source.url}")
+            return report
+
+        try:
+            playlist_title, entries = self.client.get_entries(source.url)
+        except Exception:
+            self._failed_urls.add(source.url)
+            raise
         formatter = TranscriptFormatter(
             timestamp_minutes=self.settings.timestamp_minutes,
             paragraph_chars=self.settings.paragraph_chars,
